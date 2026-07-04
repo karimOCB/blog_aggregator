@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	Db_url            string `json:"db_url"`
-	Current_user_name string `json:"current_user_name"`
+	DbUrl            string `json:"db_url"`
+	CurrentUserName string `json:"current_user_name"`
 }
 
 func Read() (Config, error) {
@@ -32,8 +32,8 @@ func Read() (Config, error) {
 	return cfg, nil
 }
 
-func (cfg Config) SetUser(userName string) error {
-	cfg.Current_user_name = userName
+func (cfg *Config) SetUser(userName string) error {
+	cfg.CurrentUserName = userName
 
 	configPath, err := getConfigFilePath()
 	if err != nil {
@@ -44,8 +44,9 @@ func (cfg Config) SetUser(userName string) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
-	if err := json.NewEncoder(file).Encode(&configPath); err != nil {
+	if err := json.NewEncoder(file).Encode(cfg); err != nil {
 		return err
 	}
 	return nil
