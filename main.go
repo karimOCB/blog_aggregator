@@ -4,26 +4,45 @@ import (
 	"github.com/karimOCB/blog_aggregator/internal/config"
 	"log"
 	"fmt"
+	"os"
 )
 
+type state struct {
+	cfg *config.Config
+}
+
 func main() {
-	cfg, err := config.Read()
+	loadedCfg, err := config.Read()
 	
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-
-	err = cfg.SetUser("Karim")
-
-	if err != nil {
-		log.Fatalf("error setting user in config: %v", err)
-	}
-
-	cfg, err = config.Read()
-	if err != nil {
-		log.Fatalf("error reading config: %v", err)
-	}
 	
-	fmt.Printf("Config Struct: %+v\n", cfg)
+	statePtr := &state{
+		cfg: &loadedCfg,
+	} 
+	
+	cmds := commands{
+		registry: make(map[string]func(*state, command) error),
+	}
+
+	cmds.register("login", handlerLogin)
+
+	if len(os.Args) < 2 {
+		log.Fatal("not enough arguments were provided")
+	}
+
+	cmd := command{
+		Name: os.Args[1],
+		Args: os.Args[2:],
+	}
+
+	err = cmds.run(statePtr, cmd)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Config Struct: %+v\n", loadedCfg)
 
 }
