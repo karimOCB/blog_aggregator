@@ -2,13 +2,17 @@ package main
 
 import (
 	"github.com/karimOCB/blog_aggregator/internal/config"
+	"github.com/karimOCB/blog_aggregator/internal/database"
 	"log"
 	"fmt"
 	"os"
+	"database/sql"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
 	cfg *config.Config
+	db *database.Queries
 }
 
 func main() {
@@ -17,11 +21,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	
+
+	db, err := sql.Open("postgres", loadedCfg.DbUrl)
+
+	if err != nil {
+		log.Fatalf("error opening the database: %v", err)
+	}
+
+	dbQueries := database.New(db)
+
 	statePtr := &state{
 		cfg: &loadedCfg,
+		db: dbQueries,
 	} 
 	
+	defer db.Close()
+
 	cmds := commands{
 		registry: make(map[string]func(*state, command) error),
 	}
@@ -29,6 +44,7 @@ func main() {
 	cmds.register("login", handlerLogin)
 
 	if len(os.Args) < 2 {
+		
 		log.Fatal("not enough arguments were provided")
 	}
 
@@ -44,5 +60,5 @@ func main() {
 	}
 
 	fmt.Printf("Config Struct: %+v\n", loadedCfg)
-
+	
 }
