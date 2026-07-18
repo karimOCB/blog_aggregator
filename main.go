@@ -1,23 +1,24 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/karimOCB/blog_aggregator/internal/config"
 	"github.com/karimOCB/blog_aggregator/internal/database"
-	"log"
-	"fmt"
-	"os"
-	"database/sql"
 	_ "github.com/lib/pq"
 )
 
 type state struct {
 	cfg *config.Config
-	db *database.Queries
+	db  *database.Queries
 }
 
 func main() {
 	loadedCfg, err := config.Read()
-	
+
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
@@ -32,9 +33,9 @@ func main() {
 
 	statePtr := &state{
 		cfg: &loadedCfg,
-		db: dbQueries,
-	} 
-	
+		db:  dbQueries,
+	}
+
 	defer db.Close()
 
 	cmds := commands{
@@ -42,9 +43,9 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
-		
 		log.Fatal("not enough arguments were provided")
 	}
 
@@ -60,5 +61,5 @@ func main() {
 	}
 
 	fmt.Printf("Config Struct: %+v\n", loadedCfg)
-	
+
 }
