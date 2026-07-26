@@ -98,3 +98,34 @@ func handlerAgg(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAddFeed(s *state, cmd command) error {
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("could not retrieve user: %s", err)
+	}
+
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("two arguments are needed, name and url")
+	}
+
+	name := cmd.Args[0]
+	url := cmd.Args[1]
+
+	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      name,
+		Url: url, 
+		UserID: user.ID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("could not create feed: %s", err)
+	}
+
+	fmt.Printf("Feed struct: %+v\n", feed)
+
+	return nil
+}
