@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -48,6 +47,7 @@ func main() {
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerGetFeeds)
 
 	if len(os.Args) < 2 {
 		log.Fatal("not enough arguments were provided")
@@ -63,7 +63,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("Config Struct: %+v\n", loadedCfg)
-
 }

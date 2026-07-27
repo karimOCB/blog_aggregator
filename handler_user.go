@@ -129,3 +129,14 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerGetFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("could not retrieve feeds, %s", err)
+	}
+
+	fmt.Printf("Feeds: %+v", feeds)
+
+	return nil
+}
