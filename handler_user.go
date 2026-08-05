@@ -140,3 +140,15 @@ func handlerGetFeeds(s *state, cmd command) error {
 
 	return nil
 }
+
+/* TODO
+func handlerFollow(s *state, cmd command) error {
+	s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID: user.id,
+		FeedID: feed.id,
+	})
+}
+*/
