@@ -9,7 +9,6 @@ import (
 	"github.com/karimOCB/blog_aggregator/internal/database"
 )
 
-
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("a username is needed to login")
@@ -32,7 +31,6 @@ func handlerLogin(s *state, cmd command) error {
 
 	return nil
 }
-
 
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.Args) == 0 {
@@ -58,7 +56,6 @@ func handlerRegister(s *state, cmd command) error {
 	return nil
 }
 
-
 func handlerReset(s *state, cmd command) error {
 	err := s.db.ResetUsers(context.Background())
 
@@ -69,7 +66,6 @@ func handlerReset(s *state, cmd command) error {
 	fmt.Println("Successful reset")
 	return nil
 }
-
 
 func handlerUsers(s *state, cmd command) error {
 	users, err := s.db.GetUsers(context.Background())
@@ -91,10 +87,9 @@ func handlerUsers(s *state, cmd command) error {
 	return nil
 }
 
-
 func handlerAgg(s *state, cmd command) error {
 	rssfeed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	
+
 	if err != nil {
 		return fmt.Errorf("could not fetch rssfeed: %w", err)
 	}
@@ -103,7 +98,6 @@ func handlerAgg(s *state, cmd command) error {
 
 	return nil
 }
-
 
 func handlerAddFeed(s *state, cmd command) error {
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
@@ -123,8 +117,8 @@ func handlerAddFeed(s *state, cmd command) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      name,
-		Url: url, 
-		UserID: user.ID,
+		Url:       url,
+		UserID:    user.ID,
 	})
 
 	if err != nil {
@@ -133,9 +127,22 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	fmt.Printf("Feed struct: %+v\n", feed)
 
+	feedFollow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("couldn't follow the feed or already following: %w", err)
+	}
+
+	fmt.Printf("User: %s, Feed: %s\n", feedFollow.UserName, feedFollow.FeedName)
+
 	return nil
 }
-
 
 func handlerGetFeeds(s *state, cmd command) error {
 	feeds, err := s.db.GetFeeds(context.Background())
@@ -148,15 +155,14 @@ func handlerGetFeeds(s *state, cmd command) error {
 	return nil
 }
 
-
 func handlerFollow(s *state, cmd command) error {
-	
+
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("one argument is needed, a URL")
 	}
 
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	
+
 	if err != nil {
 		return fmt.Errorf("couldn't retrieve user: %w", err)
 	}
@@ -171,8 +177,8 @@ func handlerFollow(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID: user.ID,
-		FeedID: feed.ID,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
 	})
 
 	if err != nil {
@@ -184,9 +190,26 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-
-/*
 func handlerFollowing(s *state, cmd command) error {
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 
+	if err != nil {
+		return fmt.Errorf("couldn't retrieve user: %w", err)
+	}
+
+	userFeedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+
+	if err != nil {
+		return fmt.Errorf("couldn't retrieve feed follows for current user: %w", err)
+	}
+
+	if len(userFeedFollows) == 0 {
+		fmt.Println("no feeds followed")
+	} else {
+		for _, feedFollows := range userFeedFollows {
+			fmt.Printf("Feed name: %s\n", feedFollows.FeedName)
+		}
+	}
+
+	return nil
 }
-*/
