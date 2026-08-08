@@ -99,11 +99,7 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("could not retrieve user: %w", err)
-	}
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 
 	if len(cmd.Args) < 2 {
 		return fmt.Errorf("two arguments are needed, name and url")
@@ -155,16 +151,10 @@ func handlerGetFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("one argument is needed, a URL")
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-
-	if err != nil {
-		return fmt.Errorf("couldn't retrieve user: %w", err)
 	}
 
 	feed, err := s.db.GetFeedByURL(context.Background(), cmd.Args[0])
@@ -190,12 +180,7 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-
-	if err != nil {
-		return fmt.Errorf("couldn't retrieve user: %w", err)
-	}
+func handlerFollowing(s *state, cmd command, user database.User) error {
 
 	userFeedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 
@@ -213,3 +198,5 @@ func handlerFollowing(s *state, cmd command) error {
 
 	return nil
 }
+
+
