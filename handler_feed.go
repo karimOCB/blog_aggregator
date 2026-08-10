@@ -56,7 +56,7 @@ func handlerGetFeeds(s *state, cmd command) error {
 		return fmt.Errorf("could not retrieve feeds, %w", err)
 	}
 
-	fmt.Printf("Feeds: %+v", feeds)
+	fmt.Printf("Feeds: %+v\n", feeds)
 
 	return nil
 }

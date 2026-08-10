@@ -16,10 +16,11 @@ func handlerAgg(s *state, cmd command) error {
 		return fmt.Errorf("couldn't parse given time: %w", err)
 	}
 
-	fmt.Printf("Collecting feeds every: %s", timeBetweenReq)
+	fmt.Printf("Collecting feeds every: %s\n", timeBetweenReq)
 
 	ticker := time.NewTicker(timeBetweenReq)
 	for ; ; <-ticker.C {
+		
 		scrapeFeeds(s)
 	}
 
@@ -42,6 +43,8 @@ func scrapeFeeds(s *state) error {
 	if err != nil {
 		return fmt.Errorf("could not fetch rssfeed: %w", err)
 	}
+
+	fmt.Println("\nNext Feed: ")
 
 	for _, item := range rssfeed.Channel.Item {
 		fmt.Printf("item title: %s \n", item.Title)
